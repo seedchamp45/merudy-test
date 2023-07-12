@@ -1,66 +1,139 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## เนื้อหา
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+1. [วิธีป้องกันการโจมตี Brute Force](#1-วิธีป้องกันการโจมตี-brute-force)
+2. [วิธีป้องกัน SQL Injection](#2-วิธีป้องกัน-sql-injection)
+3. [ตัวอย่าง Subquery](#3-ตัวอย่าง-subquery)
+4. [การเลือกสินค้าจากร้าน](#4-การเลือกสินค้าจากร้าน)
+5. [การอัปเดตสถานะสินค้า](#5-การอัปเดตสถานะสินค้า)
+6. [การจัดรูปแบบผลลัพธ์ของ SQL Query](#6-การจัดรูปแบบผลลัพธ์ของ-sql-query)
+7. [การคำนวณผลลัพธ์ใบเสนอราคา](#7-การคำนวณผลลัพธ์ใบเสนอราคา)
 
-## About Laravel
+## 1. วิธีป้องกันการโจมตี Brute Force
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+เพื่อป้องกันการโจมตี Brute Force ในฟอร์มการเข้าสู่ระบบ สามารถใช้วิธีต่อไปนี้ได้:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **CAPTCHA**: เพิ่มความยากในการโจมตี Brute Force โดยใช้ CAPTCHA เพื่อให้ผู้ใช้ต้องยืนยันตัวตนก่อนเข้าสู่ระบบ
+- **ล็อกเอาท์บัญชี**: หลังจากจำนวนครั้งที่พยายามเข้าสู่ระบบผิดพลาดเกินกำหนด ให้ล็อกเอาท์ผู้ใช้เป็นเวลาหนึ่งชั่วโมงหรือเวลาที่กำหนดเพื่อป้องกันการโจมตี Brute Force
+- **การเข้ารหัสรหัสผ่าน**: ใช้เทคนิคการเข้ารหัสที่มีความแข็งแกร่งเพื่อเก็บรักษาความปลอดภัยของรหัสผ่าน เช่นการใช้การเข้ารหัสแบบแฮช (hash) แทนรหัสผ่านเป็นข้อความที่อ่านง่าย
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 2. วิธีป้องกัน SQL Injection
 
-## Learning Laravel
+เพื่อป้องกันการโจมตี SQL Injection ให้ใช้ parameterized queries หรือ stored procedures ดังตัวอย่างต่อไปนี้:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```sql
+-- ตัวอย่าง 1: Parameterized Query
+DECLARE @username NVARCHAR(50);
+SET @username = 'example_user';
+DECLARE @password NVARCHAR(50);
+SET @password = 'example_password';
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+SELECT * FROM users
+WHERE username = @username AND password = @password;
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-- ตัวอย่าง 2: Stored Procedure
+CREATE PROCEDURE AuthenticateUser
+    @username NVARCHAR(50),
+    @password NVARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
 
-## Laravel Sponsors
+    SELECT * FROM users
+    WHERE username = @username AND password = @password;
+END;
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## 3. ตัวอย่าง Subquery
 
-### Premium Partners
+Subquery สามารถใช้ได้ในตำแหน่งต่างๆ ของคำสั่ง SQL ดังตัวอย่างต่อไปนี้:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+```sql
+-- ตัวอย่าง 1: Subquery ใน SELECT
+SELECT p.product_name, (SELECT category_name FROM categories WHERE category_id = p.category_id) AS category
+FROM products p;
 
-## Contributing
+-- ตัวอย่าง 2: Subquery ใน WHERE
+SELECT * FROM orders
+WHERE customer_id IN (SELECT customer_id FROM customers WHERE country = 'USA');
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+-- ตัวอย่าง 3: Subquery ใน FROM
+SELECT subquery.total_sales, s.shop_name
+FROM (SELECT shop_id, SUM(sales_amount) AS total_sales FROM sales GROUP BY shop_id) AS subquery
+JOIN shops s ON subquery.shop_id = s.shop_id;
+```
 
-## Code of Conduct
+## 4. การเลือกสินค้าจากร้าน
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+เพื่อเลือกสินค้าจากร้านที่มีชื่อ "rudy shop" ใช้โค้ด SQL ต่อไปนี้:
 
-## Security Vulnerabilities
+```sql
+SELECT p.id, p.name, p.status, p.shop_id
+FROM tb_product p
+INNER JOIN tb_shop s ON p.shop_id = s.id
+WHERE s.name = 'rudy shop';
+``
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+`
 
-## License
+## 5. การอัปเดตสถานะสินค้า
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+เพื่ออัปเดตสถานะ ('0') ของสินค้าทั้งหมดที่เป็นของร้านที่ชื่อ "rudy shop" ใช้โค้ด SQL ต่อไปนี้:
+
+```sql
+UPDATE tb_product
+SET status = '0'
+WHERE shop_id = (SELECT id FROM tb_shop WHERE name = 'rudy shop');
+```
+
+## 6. การจัดรูปแบบผลลัพธ์ของ SQL Query
+
+เพื่อจัดรูปแบบผลลัพธ์จาก SQL Query ตามประเภทข้อมูล คุณสามารถสร้างฟังก์ชัน SQL ดังตัวอย่างนี้:
+
+```sql
+CREATE FUNCTION FormatData (@data AS VARCHAR(MAX), @data_type AS VARCHAR(20))
+RETURNS VARCHAR(MAX)
+AS
+BEGIN
+    DECLARE @formatted_data VARCHAR(MAX);
+
+    IF @data_type = 'date'
+    BEGIN
+        SET @formatted_data = CONVERT(VARCHAR(10), CAST(@data AS DATE), 103);
+    END
+    ELSE IF @data_type IN ('float', 'double')
+    BEGIN
+        SET @formatted_data = FORMAT(CAST(@data AS FLOAT), 'N', 'en-US');
+    END
+    -- เพิ่มเงื่อนไขประเภทข้อมูลอื่นๆ ที่นี่
+
+    RETURN @formatted_data;
+END;
+```
+
+## 7. การคำนวณผลลัพธ์ใบเสนอราคา
+
+โค้ด SQL ด้านล่างเป็นตัวอย่างฟังก์ชันในการคำนวณผลลัพธ์ใบเสนอราคาตามราคาสินค้าทั้งหมดและส่วนลด:
+
+```sql
+CREATE FUNCTION CalculateQuotation (
+    @total_price DECIMAL(18, 2),
+    @discount DECIMAL(18, 2)
+)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT
+        @total_price AS total_product_price,
+        @discount AS total_discount,
+        (@total_price - @discount) AS product_price_after_discount,
+        ((@total_price - @discount) * 0.07) AS vat,
+        ((@total_price - @discount) * 1.07) AS total_price
+);
+```
+
+การใช้งานฟังก์ชัน:
+
+```sql
+SELECT * FROM CalculateQuotation(1000.00, 200.00);
+```
